@@ -28,6 +28,27 @@ This file is **committed to git** as a historical record. Add new sessions at th
 
 ---
 
+## Session: Step 5-3 Frontend Feature Completion - 2026-10-16
+
+### What Was Accomplished
+- Implemented delete, edit (inline Save/Cancel), calculated stats, empty state, relative API URL, and query/mutation error alerts in [`packages/frontend/src/App.js`](../../packages/frontend/src/App.js)
+- Added 10 RTL tests (written first, RED confirmed) in [`packages/frontend/src/__tests__/App.test.js`](../../packages/frontend/src/__tests__/App.test.js)
+- Replaced the example Google smoke spec with 5 Playwright POM tests in [`packages/frontend/tests/ui/`](../../packages/frontend/tests/ui/)
+
+### Key Findings and Decisions
+- **Finding:** `fetch` does not reject on 4xx/5xx, so React Query never saw errors.
+- **Decision:** Shared `parseResponse` helper throws on `!response.ok`, using the backend's `{ error }` message. *Why:* one place for error semantics across query and all mutations.
+- **Decision:** Added `aria-label`s to icon buttons/checkboxes. *Why:* accessibility and role-based selectors in RTL and Playwright.
+- **Decision:** UI tests seed via backend API with per-test unique title prefixes and clean up in a fixture. *Why:* backend state is shared in-memory; parallel runs must not collide.
+
+### Outcomes
+- Tests: frontend 11/11, backend 15/15, UI 5/5 (15/15 with `--repeat-each=3 --workers=4`)
+- Lint: clean
+- Follow-ups (deferred UI journeys): empty-state and stats E2E (covered by RTL), mutation-error E2E
+- Patterns added: [Fetch Response Error Handling for React Query](patterns-discovered.md#pattern-fetch-response-error-handling-for-react-query)
+
+---
+
 ## Session: Backend GET /api/todos Fix - 2026-10-16 (Example)
 
 ### What Was Accomplished

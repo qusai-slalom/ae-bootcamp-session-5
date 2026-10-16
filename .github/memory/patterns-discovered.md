@@ -50,3 +50,30 @@ The same applies to React state: prefer `useState([])` over `useState(null)` for
 
 - **Related Files:** [`packages/backend/src/app.js`](../../packages/backend/src/app.js), [`packages/backend/__tests__/app.test.js`](../../packages/backend/__tests__/app.test.js)
 - **Discovered:** 2026-10-16, Backend GET /api/todos Fix
+
+---
+
+## Pattern: Fetch Response Error Handling for React Query
+
+- **Context:** Any `queryFn` / `mutationFn` that uses `fetch`.
+- **Problem:** `fetch` only rejects on network failure. 4xx/5xx responses resolve normally, so React Query reports success and `isError`/`onError` never fire.
+- **Solution:** Route every response through a helper that throws when `!response.ok`, preferring the API's `{ error }` message. Render `isError` (query) and the first failed mutation's `error.message` in an MUI `<Alert>` (has `role="alert"`, easy to assert).
+
+**Example:**
+
+```javascript
+const parseResponse = async (response) => {
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `Request failed with status ${response.status}`);
+  }
+  return data;
+};
+
+queryFn: async () => parseResponse(await fetch('/api/todos')),
+```
+
+Use relative URLs (`/api/todos`) so the CRA `proxy` in `package.json` forwards to the backend.
+
+- **Related Files:** [`packages/frontend/src/App.js`](../../packages/frontend/src/App.js), [`packages/frontend/src/__tests__/App.test.js`](../../packages/frontend/src/__tests__/App.test.js)
+- **Discovered:** 2026-10-16, Step 5-3 Frontend Feature Completion
